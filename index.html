@@ -92,7 +92,27 @@
         <label><input type="radio" name="options" value="1" checked> Medium (<span id="medium-value"></span> particles)</label><br>
         <label><input type="radio" name="options" value="2"> Large (<span id="large-value"></span> particles)</label><br>
         <label><input type="radio" name="options" value="3"> Very Large (<span id="very-large-value"></span> particles)</label><br>
+        <label><input type="radio" name="options" value="4"> Custom</label><br>
       </form>
+      <div id="custom-settings" style="display: none; margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 5px;">
+        <div style="margin-bottom: 5px;">
+          <label for="custom-particles">Particles:</label><br>
+          <input type="number" id="custom-particles" min="1000" max="200000" value="70000" style="width: 100px;">
+        </div>
+        <div style="margin-bottom: 5px;">
+          <label for="custom-box-x">Box X:</label><br>
+          <input type="number" id="custom-box-x" min="1" max="200" value="40" step="0.1" style="width: 100px;">
+        </div>
+        <div style="margin-bottom: 5px;">
+          <label for="custom-box-y">Box Y:</label><br>
+          <input type="number" id="custom-box-y" min="1" max="200" value="30" step="0.1" style="width: 100px;">
+        </div>
+        <div style="margin-bottom: 5px;">
+          <label for="custom-box-z">Box Z:</label><br>
+          <input type="number" id="custom-box-z" min="1" max="200" value="60" step="0.1" style="width: 100px;">
+        </div>
+        <button type="button" id="apply-custom" style="margin-top: 5px;">Apply</button>
+      </div>
     </div>
     <div id="howto-container">
       <div> <b>Drag</b> to move camera </div>

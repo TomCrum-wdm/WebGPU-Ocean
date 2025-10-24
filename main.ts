@@ -156,13 +156,39 @@ async function main() {
 	let numberButtonForm = document.getElementById('number-button') as HTMLFormElement;
 	let numberButtonPressed = false;
 	let numberButtonPressedButton = "1"
+	let customParticles = 70000;
+	let customBoxSize = [40, 30, 60];
+	
+	// Show/hide custom settings based on radio selection
 	numberButtonForm.addEventListener('change', function(event) {
 		const target = event.target as HTMLInputElement
 		if (target?.name === 'options') {
 			numberButtonPressed = true
 			numberButtonPressedButton = target.value
+			
+			const customSettings = document.getElementById('custom-settings') as HTMLDivElement;
+			if (target.value === '4') {
+				customSettings.style.display = 'block';
+			} else {
+				customSettings.style.display = 'none';
+			}
 		}
 	}); 
+	
+	// Handle custom apply button
+	const applyCustomButton = document.getElementById('apply-custom') as HTMLButtonElement;
+	applyCustomButton.addEventListener('click', function() {
+		const particlesInput = document.getElementById('custom-particles') as HTMLInputElement;
+		const boxXInput = document.getElementById('custom-box-x') as HTMLInputElement;
+		const boxYInput = document.getElementById('custom-box-y') as HTMLInputElement;
+		const boxZInput = document.getElementById('custom-box-z') as HTMLInputElement;
+		
+		customParticles = parseInt(particlesInput.value);
+		customBoxSize = [parseFloat(boxXInput.value), parseFloat(boxYInput.value), parseFloat(boxZInput.value)];
+		
+		numberButtonPressed = true;
+		numberButtonPressedButton = '4';
+	});
 	let simulationModeForm = document.getElementById('simulation-mode') as HTMLFormElement;
 	let simulationModePressed = false;
 	let simulationModePressedButton = "mls-mpm"
@@ -215,12 +241,50 @@ async function main() {
 				mediumValue.textContent = "70,000"
 				largeValue.textContent = "120,000"
 				veryLargeValue.textContent = "200,000"
+				// Update custom input defaults for MLS-MPM
+				const customParticlesInput = document.getElementById('custom-particles') as HTMLInputElement;
+				const customBoxXInput = document.getElementById('custom-box-x') as HTMLInputElement;
+				const customBoxYInput = document.getElementById('custom-box-y') as HTMLInputElement;
+				const customBoxZInput = document.getElementById('custom-box-z') as HTMLInputElement;
+				customParticlesInput.value = "70000";
+				customBoxXInput.value = "40";
+				customBoxYInput.value = "30";
+				customBoxZInput.value = "60";
+				customParticlesInput.max = "200000";
+				customBoxXInput.max = "200";
+				customBoxYInput.max = "200";
+				customBoxZInput.max = "200";
+				customBoxXInput.min = "1";
+				customBoxYInput.min = "1";
+				customBoxZInput.min = "1";
+				customBoxXInput.step = "1";
+				customBoxYInput.step = "1";
+				customBoxZInput.step = "1";
 			} else {
 				sphFl = true
 				smallValue.textContent = "10,000"
 				mediumValue.textContent = "20,000"
 				largeValue.textContent = "30,000"
 				veryLargeValue.textContent = "40,000"
+				// Update custom input defaults for SPH
+				const customParticlesInput = document.getElementById('custom-particles') as HTMLInputElement;
+				const customBoxXInput = document.getElementById('custom-box-x') as HTMLInputElement;
+				const customBoxYInput = document.getElementById('custom-box-y') as HTMLInputElement;
+				const customBoxZInput = document.getElementById('custom-box-z') as HTMLInputElement;
+				customParticlesInput.value = "20000";
+				customBoxXInput.value = "1.0";
+				customBoxYInput.value = "2.0";
+				customBoxZInput.value = "1.0";
+				customParticlesInput.max = "200000";
+				customBoxXInput.max = "10";
+				customBoxYInput.max = "10";
+				customBoxZInput.max = "10";
+				customBoxXInput.min = "0.1";
+				customBoxYInput.min = "0.1";
+				customBoxZInput.min = "0.1";
+				customBoxXInput.step = "0.1";
+				customBoxYInput.step = "0.1";
+				customBoxZInput.step = "0.1";
 			}
 			simulationModePressed = false
 			numberButtonPressed = true 
@@ -229,15 +293,33 @@ async function main() {
 		if (numberButtonPressed) { 
 			const paramsIdx = parseInt(numberButtonPressedButton)
 			if (sphFl) {
-				initBoxSize = sphInitBoxSizes[paramsIdx]
-				sphSimulator.reset(sphNumParticleParams[paramsIdx], initBoxSize)
-				camera.reset(canvasElement, sphInitDistances[paramsIdx], [0, -initBoxSize[1] + 0.1, 0], 
-					sphFov, sphZoomRate)
+				if (paramsIdx === 4) {
+					// Custom values
+					initBoxSize = [customBoxSize[0] / 50, customBoxSize[1] / 50, customBoxSize[2] / 50];
+					const distance = Math.max(customBoxSize[0], customBoxSize[1], customBoxSize[2]) / 50 + 2.0;
+					sphSimulator.reset(customParticles, initBoxSize);
+					camera.reset(canvasElement, distance, [0, -initBoxSize[1] + 0.1, 0], 
+						sphFov, sphZoomRate);
+				} else {
+					initBoxSize = sphInitBoxSizes[paramsIdx]
+					sphSimulator.reset(sphNumParticleParams[paramsIdx], initBoxSize)
+					camera.reset(canvasElement, sphInitDistances[paramsIdx], [0, -initBoxSize[1] + 0.1, 0], 
+						sphFov, sphZoomRate)
+				}
 			} else {
-				initBoxSize = mlsmpmInitBoxSizes[paramsIdx]
-				mlsmpmSimulator.reset(mlsmpmNumParticleParams[paramsIdx], initBoxSize)
-				camera.reset(canvasElement, mlsmpmInitDistances[paramsIdx], [initBoxSize[0] / 2, initBoxSize[1] / 4, initBoxSize[2] / 2], 
-					mlsmpmFov, mlsmpmZoomRate)
+				if (paramsIdx === 4) {
+					// Custom values
+					initBoxSize = [customBoxSize[0], customBoxSize[1], customBoxSize[2]];
+					const distance = Math.max(customBoxSize[0], customBoxSize[1], customBoxSize[2]) + 40;
+					mlsmpmSimulator.reset(customParticles, initBoxSize);
+					camera.reset(canvasElement, distance, [initBoxSize[0] / 2, initBoxSize[1] / 4, initBoxSize[2] / 2], 
+						mlsmpmFov, mlsmpmZoomRate);
+				} else {
+					initBoxSize = mlsmpmInitBoxSizes[paramsIdx]
+					mlsmpmSimulator.reset(mlsmpmNumParticleParams[paramsIdx], initBoxSize)
+					camera.reset(canvasElement, mlsmpmInitDistances[paramsIdx], [initBoxSize[0] / 2, initBoxSize[1] / 4, initBoxSize[2] / 2], 
+						mlsmpmFov, mlsmpmZoomRate)
+				}
 			}
 			realBoxSize = [...initBoxSize]
 			let slider = document.getElementById("slider") as HTMLInputElement
