@@ -20,10 +20,22 @@ My implementation of MLS-MPM is based on [nialltl's article](https://nialltl.neo
 
 Implementing 3D version of nialltl's MLS-MPM in WebGPU was relatively straightforward, but there was one difficult point : **Particle to Grid (P2G) stage.** In the P2G stage, it's required to scatter particle data to grids in parallel. The most standard way to do this in WebGPU is using `atomicAdd`. However, since `atomicAdd` exists only for 32bit integers, it's impossible to directly use it to scatter data which is held as floating-point number. To avoid this problem, **fixed-point number** is used. That is, the data itself is hold as integers and multiplied by a constant (e.g. `1e-7`) to decode the data as floating-point numbers. This way it's possible to use `atomicAdd` for scattering particle data to grids. (I discovered this technique in [pbmpm](https://github.com/electronicarts/pbmpm) repository, a reference implementation for [A Position Based Material Point Method (SIGGRAPH 2024)](https://media.contentapi.ea.com/content/dam/ea/seed/presentations/seed-siggraph2024-pbmpm-paper.pdf) by Chris Lewin. )
 ## How to run
-```
+
+### Development Mode
+```bash
 npm install
 npm run serve
 ```
+
+**Important:** You must use `npm run serve` to run the development server. Do not try to open `index.html` directly in your browser, as this will cause MIME type errors for TypeScript files.
+
+### Production Build
+```bash
+npm run build
+```
+
+The built files will be in the `dist/` folder. These files are ready to be deployed to any static hosting service.
+
 If you have trouble running the repo, feel free to open an issue.
 ## TODO
 - ~~Implement MLS-MPM~~ ⇒ **Done**
